@@ -251,5 +251,10 @@ def delete_student(id):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
+# Esse bloco garante que o banco de dados seja criado se não existir
+with app.app_context():
+    db.create_all()
+    print("Banco de dados criado com sucesso!")
+
     init_db()
     app.run(debug=True, host='0.0.0.0')
