@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduTech.AI - Dashboard</title>
+    <title>EduTech.AI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg: #f4f7f6; --card: #fff; --text: #333; }
         [data-theme="dark"] { --bg: #121212; --card: #1e1e1e; --text: #f1f1f1; }
-        body { background: var(--bg); color: var(--text); transition: 0.3s; font-family: sans-serif; }
-        .card { background: var(--card); border: none; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .navbar { background: var(--card); border-bottom: 1px solid rgba(0,0,0,0.1); }
-        .btn-theme { cursor: pointer; font-size: 1.2rem; }
-        .filter-btn { cursor: pointer; margin-right: 5px; margin-bottom: 5px; }
+        body { background: var(--bg); color: var(--text); transition: 0.3s; margin: 0; padding-bottom: 50px; }
+        .navbar { background: var(--card); box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .card { background: var(--card); border: none; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .chart-container { height: 200px; position: relative; }
+        .filter-btn { cursor: pointer; border-radius: 20px; transition: 0.2s; }
+        .filter-btn:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
 
-<nav class="navbar px-4 py-3 mb-4">
-    <div class="container-fluid">
+<nav class="navbar px-3 py-2 mb-3">
+    <div class="container-fluid d-flex justify-content-between">
         <span class="fw-bold">EduTech<span class="text-primary">.AI</span></span>
         <div class="d-flex align-items-center">
-            <div class="btn-theme me-3" onclick="toggleTheme()"><i id="theme-icon" class="fas fa-moon"></i></div>
+            <div class="btn me-3" onclick="toggleTheme()"><i id="theme-icon" class="fas fa-moon text-primary"></i></div>
             <a href="{{ url_for('logout') }}" class="text-danger"><i class="fas fa-sign-out-alt"></i></a>
         </div>
     </div>
@@ -31,50 +32,41 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-lg-4">
-            <div class="card p-4 text-center">
-                <h6>Status da Turma</h6>
-                <canvas id="meuGrafico" height="250"></canvas>
+        <div class="col-md-4">
+            <div class="card p-3 text-center">
+                <h6 class="small opacity-75">Resumo da Turma</h6>
+                <div class="chart-container"><canvas id="meuGrafico"></canvas></div>
             </div>
         </div>
 
-        <div class="col-lg-8">
-            <div class="card p-4">
-                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">Gestão Escolar</h6>
+        <div class="col-md-8">
+            <div class="card p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="small opacity-75 mb-0">Lista de Alunos</h6>
                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">+ Novo</button>
                 </div>
 
-                <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar aluno por nome..." onkeyup="filtrarTabela()">
-                <div class="mb-3">
+                <input type="text" id="searchInput" class="form-control form-control-sm mb-2" placeholder="Buscar aluno..." onkeyup="filtrarTabela()">
+                
+                <div class="d-flex flex-wrap gap-1 mb-2">
                     <span class="badge bg-secondary filter-btn" onclick="filtrarStatus('todos')">Todos</span>
                     <span class="badge bg-danger filter-btn" onclick="filtrarStatus('Crítico')">Crítico</span>
-                    <span class="badge bg-warning text-dark filter-btn" onclick="filtrarStatus('Risco')">Alto Risco</span>
                     <span class="badge bg-success filter-btn" onclick="filtrarStatus('Aprovado')">Aprovado</span>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover" id="alunoTable">
-                        <thead>
-                            <tr>
-                                <th>Aluno</th>
-                                <th>Faltas</th>
-                                <th>IA Status</th>
-                                <th class="text-end">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <div class="table-responsive" style="max-height: 400px;">
+                    <table class="table table-sm table-hover align-middle">
+                        <tbody id="alunoTable">
                             {% for aluno in alunos %}
                             <tr class="aluno-row" data-status="{{ aluno.predicao.status }}">
-                                <td class="aluno-nome">
-                                    <strong>{{ aluno.nome }}</strong><br>
-                                    <small class="text-muted">Média: {{ "%.1f"|format(aluno.media) }}</small>
+                                <td>
+                                    <div class="fw-bold small">{{ aluno.nome }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Faltas: {{ aluno.faltas }} | Média: {{ "%.1f"|format(aluno.media) }}</div>
                                 </td>
-                                <td>{{ aluno.faltas }}</td>
-                                <td><span class="badge bg-{{ aluno.predicao.cor }} rounded-pill">{{ aluno.predicao.status }}</span></td>
+                                <td><span class="badge bg-{{ aluno.predicao.cor }} rounded-pill" style="font-size: 0.7rem;">{{ aluno.predicao.status }}</span></td>
                                 <td class="text-end">
-                                    <a href="{{ url_for('enviar_whatsapp', id=aluno.id) }}" class="text-success me-2"><i class="fab fa-whatsapp"></i></a>
-                                    <a href="{{ url_for('delete_student', id=aluno.id) }}" class="text-danger"><i class="fas fa-trash"></i></a>
+                                    <button class="btn btn-link text-primary p-1" onclick="abrirEdicao('{{ aluno.id }}', '{{ aluno.nome }}', '{{ aluno.matricula }}', '{{ aluno.telefone }}', '{{ aluno.nota1 }}', '{{ aluno.nota2 }}', '{{ aluno.faltas }}')"><i class="fas fa-edit"></i></button>
+                                    <a href="{{ url_for('enviar_whatsapp', id=aluno.id) }}" class="text-success p-1"><i class="fab fa-whatsapp"></i></a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -87,54 +79,53 @@
 </div>
 
 <div class="modal fade" id="addModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: var(--card); color: var(--text);">
-            <form action="{{ url_for('add_student') }}" method="POST" class="p-4">
-                <h5>Novo Aluno</h5>
-                <input type="text" name="nome" placeholder="Nome" class="form-control mb-2" required>
-                <input type="text" name="matricula" placeholder="Matrícula" class="form-control mb-2" required>
-                <input type="text" name="telefone" placeholder="Telefone" class="form-control mb-2" required>
-                <input type="number" name="faltas" placeholder="Faltas" class="form-control mb-2" required>
-                <div class="row">
-                    <div class="col"><input type="number" step="0.1" name="nota1" placeholder="N1" class="form-control mb-2"></div>
-                    <div class="col"><input type="number" step="0.1" name="nota2" placeholder="N2" class="form-control mb-2"></div>
+            <form action="{{ url_for('add_student') }}" method="POST" class="p-3">
+                <h6 class="mb-3">Cadastrar Aluno</h6>
+                <input type="text" name="nome" placeholder="Nome" class="form-control mb-2 form-control-sm" required>
+                <div class="row g-2">
+                    <div class="col"><input type="text" name="matricula" placeholder="Matrícula" class="form-control mb-2 form-control-sm" required></div>
+                    <div class="col"><input type="text" name="telefone" placeholder="Telefone" class="form-control mb-2 form-control-sm" required></div>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Salvar</button>
+                <div class="row g-2">
+                    <div class="col"><input type="number" step="0.1" name="nota1" placeholder="Nota 1" class="form-control mb-2 form-control-sm"></div>
+                    <div class="col"><input type="number" step="0.1" name="nota2" placeholder="Nota 2" class="form-control mb-2 form-control-sm"></div>
+                    <div class="col"><input type="number" name="faltas" placeholder="Faltas" class="form-control mb-2 form-control-sm"></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm w-100">Adicionar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--card); color: var(--text);">
+            <form id="formEditar" method="POST" class="p-3">
+                <h6 class="mb-3">Editar Aluno</h6>
+                <input type="text" id="edit_nome" name="nome" class="form-control mb-2 form-control-sm" required>
+                <input type="text" id="edit_matricula" name="matricula" class="form-control mb-2 form-control-sm" required>
+                <input type="text" id="edit_telefone" name="telefone" class="form-control mb-2 form-control-sm" required>
+                <div class="row g-2">
+                    <div class="col"><input type="number" step="0.1" id="edit_n1" name="nota1" class="form-control mb-2 form-control-sm"></div>
+                    <div class="col"><input type="number" step="0.1" id="edit_n2" name="nota2" class="form-control mb-2 form-control-sm"></div>
+                    <div class="col"><input type="number" id="edit_faltas" name="faltas" class="form-control mb-2 form-control-sm"></div>
+                </div>
+                <input type="hidden" name="nota3" value="0">
+                <button type="submit" class="btn btn-success btn-sm w-100">Salvar Alterações</button>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    // Lógica de Filtro em Tempo Real
-    function filtrarTabela() {
-        let input = document.getElementById('searchInput').value.toLowerCase();
-        let rows = document.querySelectorAll('.aluno-row');
-        rows.forEach(row => {
-            let nome = row.querySelector('.aluno-nome').innerText.toLowerCase();
-            row.style.display = nome.includes(input) ? "" : "none";
-        });
-    }
-
-    function filtrarStatus(status) {
-        let rows = document.querySelectorAll('.aluno-row');
-        rows.forEach(row => {
-            let statusAluno = row.getAttribute('data-status');
-            if (status === 'todos' || statusAluno.includes(status)) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
-            }
-        });
-    }
-
-    // Modo Escuro e Gráfico mantidos
     function toggleTheme() {
         const body = document.body;
         const icon = document.getElementById('theme-icon');
         if (body.getAttribute('data-theme') === 'dark') {
             body.removeAttribute('data-theme');
-            icon.className = 'fas fa-moon';
+            icon.className = 'fas fa-moon text-primary';
             localStorage.setItem('theme', 'light');
         } else {
             body.setAttribute('data-theme', 'dark');
@@ -144,14 +135,37 @@
     }
     if (localStorage.getItem('theme') === 'dark') toggleTheme();
 
-    const ctx = document.getElementById('meuGrafico').getContext('2d');
-    new Chart(ctx, {
+    function filtrarTabela() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        document.querySelectorAll('.aluno-row').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+        });
+    }
+
+    function filtrarStatus(status) {
+        document.querySelectorAll('.aluno-row').forEach(row => {
+            row.style.display = (status === 'todos' || row.getAttribute('data-status').includes(status)) ? "" : "none";
+        });
+    }
+
+    function abrirEdicao(id, nome, mat, tel, n1, n2, faltas) {
+        document.getElementById('formEditar').action = "/edit/" + id;
+        document.getElementById('edit_nome').value = nome;
+        document.getElementById('edit_matricula').value = mat;
+        document.getElementById('edit_telefone').value = tel;
+        document.getElementById('edit_n1').value = n1;
+        document.getElementById('edit_n2').value = n2;
+        document.getElementById('edit_faltas').value = faltas;
+        new bootstrap.Modal(document.getElementById('editModal')).show();
+    }
+
+    new Chart(document.getElementById('meuGrafico'), {
         type: 'doughnut',
         data: {
             labels: ['Aprovados', 'Em Risco'],
             datasets: [{ data: [{{ apr }}, {{ rep }}], backgroundColor: ['#2ecc71', '#e74c3c'], borderWidth: 0 }]
         },
-        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } } }
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
