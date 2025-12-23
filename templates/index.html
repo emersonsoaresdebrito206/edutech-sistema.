@@ -6,123 +6,183 @@
     <title>EduTech.AI - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .sidebar { background: linear-gradient(180deg, #6a11cb 0%, #2575fc 100%); min-height: 100vh; color: white; }
-        .card-stats { border: none; border-radius: 15px; transition: transform 0.3s; }
-        .card-stats:hover { transform: translateY(-5px); }
-        .table-container { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .badge-risco { font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; }
+        /* Variáveis de Tema */
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #6c757d;
+            --sidebar-bg: #1a1a1a;
+            --border-color: #dee2e6;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --sidebar-bg: #000000;
+            --border-color: #333333;
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif; 
+            transition: all 0.3s ease;
+        }
+
+        .sidebar { background: var(--sidebar-bg); min-height: 100vh; color: #fff; padding: 20px; }
+        
+        .card-custom { 
+            border: none; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            background: var(--card-bg); 
+            transition: background 0.3s ease;
+        }
+
+        .table { color: var(--text-main); border-color: var(--border-color); }
+        .table thead { background: rgba(0,0,0,0.05); color: var(--text-main); }
+        
+        .theme-toggle {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .theme-toggle:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
 <div class="container-fluid">
     <div class="row">
-        <nav class="col-md-2 d-none d-md-block sidebar p-4">
-            <h4 class="text-center mb-5"><i class="fas fa-graduation-cap"></i> EDUTECH</h4>
-            <ul class="nav flex-column">
-                <li class="nav-item mb-3"><a class="nav-link text-white" href="#"><i class="fas fa-home me-2"></i> Início</a></li>
-                <li class="nav-item mb-3"><a class="nav-link text-white" href="{{ url_for('exportar_dados') }}"><i class="fas fa-file-export me-2"></i> Relatórios</a></li>
-                <li class="nav-item mt-5"><a class="nav-link text-warning" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Sair</a></li>
+        <nav class="col-md-2 d-none d-md-block sidebar">
+            <h3 class="text-center mb-4 mt-3">EduTech<span class="text-primary">.AI</span></h3>
+            
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <i id="theme-icon" class="fas fa-moon"></i> 
+                <span id="theme-text" class="ms-2">Modo Escuro</span>
+            </div>
+
+            <hr>
+            <ul class="nav flex-column mt-4">
+                <li class="nav-item mb-3"><a class="nav-link text-white" href="#"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+                <li class="nav-item mb-3"><a class="nav-link text-white" href="{{ url_for('exportar_dados') }}"><i class="fas fa-file-csv me-2"></i> Exportar CSV</a></li>
+                <li class="nav-item mt-5"><a class="nav-link text-danger" href="{{ url_for('logout') }}"><i class="fas fa-power-off me-2"></i> Sair</a></li>
             </ul>
         </nav>
 
-        <main class="col-md-10 ms-sm-auto p-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
-                <h1 class="h2">Painel de Inteligência Preditiva</h1>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
-                    <i class="fas fa-plus me-2"></i>Novo Aluno
+        <main class="col-md-10 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Visão Geral do Desempenho</h4>
+                <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addModal">
+                    <i class="fas fa-user-plus me-2"></i>Adicionar Aluno
                 </button>
             </div>
 
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card card-stats bg-white p-3 mb-3 shadow-sm">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0 bg-success text-white rounded-circle p-3 me-3"><i class="fas fa-user-check fa-2x"></i></div>
-                            <div><p class="text-muted mb-0">Aprovados</p><h3 class="mb-0">{{ apr }}</h3></div>
-                        </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-custom p-4 text-center h-100">
+                        <h6 style="color: var(--text-muted)" class="mb-4">Distribuição de Resultados</h6>
+                        <canvas id="meuGrafico"></canvas>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card card-stats bg-white p-3 mb-3 shadow-sm">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0 bg-danger text-white rounded-circle p-3 me-3"><i class="fas fa-user-times fa-2x"></i></div>
-                            <div><p class="text-muted mb-0">Reprovados</p><h3 class="mb-0">{{ rep }}</h3></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card card-stats bg-white p-3 mb-3 shadow-sm">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0 bg-warning text-white rounded-circle p-3 me-3"><i class="fas fa-brain fa-2x"></i></div>
-                            <div><p class="text-muted mb-0">Total Alunos</p><h3 class="mb-0">{{ alunos|length }}</h3></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="table-container">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Aluno</th>
-                            <th>Média</th>
-                            <th>Análise IA</th>
-                            <th class="text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for aluno in alunos %}
-                        <tr>
-                            <td>
-                                <strong>{{ aluno.nome }}</strong><br>
-                                <small class="text-muted">{{ aluno.matricula }}</small>
-                            </td>
-                            <td><span class="badge bg-light text-dark">{{ "%.1f"|format(aluno.media) }}</span></td>
-                            <td>
-                                <span class="badge bg-{{ aluno.predicao.cor }} badge-risco">
-                                    {{ aluno.predicao.status }}
-                                </span>
-                                <br><small class="text-muted">{{ aluno.predicao.msg }}</small>
-                            </td>
-                            <td class="text-center">
-                                <a href="{{ url_for('enviar_whatsapp', id=aluno.id) }}" class="btn btn-sm btn-outline-success me-1"><i class="fab fa-whatsapp"></i></a>
-                                <a href="{{ url_for('gerar_boletim', id=aluno.id) }}" class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-file-pdf"></i></a>
-                                <a href="{{ url_for('delete_student', id=aluno.id) }}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="col-md-8 mb-4">
+                    <div class="card card-custom p-4 h-100">
+                        <h6 style="color: var(--text-muted)" class="mb-4">Lista de Alunos e Predição IA</h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Status IA</th>
+                                        <th class="text-end">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for aluno in alunos %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ aluno.nome }}</strong><br>
+                                            <small style="color: var(--text-muted)">Média: {{ "%.1f"|format(aluno.media) }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ aluno.predicao.cor }} rounded-pill">
+                                                {{ aluno.predicao.status }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <a href="{{ url_for('enviar_whatsapp', id=aluno.id) }}" class="text-success me-3"><i class="fab fa-whatsapp fa-lg"></i></a>
+                                            <a href="{{ url_for('gerar_boletim', id=aluno.id) }}" class="text-primary me-3"><i class="fas fa-file-pdf fa-lg"></i></a>
+                                            <a href="{{ url_for('delete_student', id=aluno.id) }}" class="text-danger"><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 </div>
 
-<div class="modal fade" id="addModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form action="{{ url_for('add_student') }}" method="POST">
-                <div class="modal-header"><h5>Cadastrar Aluno</h5></div>
-                <div class="modal-body">
-                    <input type="text" name="nome" placeholder="Nome Completo" class="form-control mb-2" required>
-                    <input type="text" name="matricula" placeholder="Matrícula" class="form-control mb-2" required>
-                    <input type="text" name="telefone" placeholder="Telefone (DDD)" class="form-control mb-2" required>
-                    <div class="row">
-                        <div class="col"><input type="number" step="0.1" name="nota1" placeholder="Nota 1" class="form-control mb-2"></div>
-                        <div class="col"><input type="number" step="0.1" name="nota2" placeholder="Nota 2" class="form-control mb-2"></div>
-                        <div class="col"><input type="number" step="0.1" name="nota3" placeholder="Nota 3" class="form-control mb-2"></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary w-100">Salvar Dados</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<script>
+    // Lógica do Tema
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.getElementById('theme-icon');
+        const text = document.getElementById('theme-text');
+        
+        if (body.getAttribute('data-theme') === 'dark') {
+            body.removeAttribute('data-theme');
+            icon.className = 'fas fa-moon';
+            text.innerText = 'Modo Escuro';
+            localStorage.setItem('theme', 'light');
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            icon.className = 'fas fa-sun';
+            text.innerText = 'Modo Claro';
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+
+    // Persistir o tema ao carregar
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        document.getElementById('theme-icon').className = 'fas fa-sun';
+        document.getElementById('theme-text').innerText = 'Modo Claro';
+    }
+
+    // Configuração do Gráfico
+    const ctx = document.getElementById('meuGrafico').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Aprovados', 'Reprovados'],
+            datasets: [{
+                data: [{{ apr }}, {{ rep }}],
+                backgroundColor: ['#1cc88a', '#e74a3b'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            cutout: '70%',
+            plugins: { 
+                legend: { position: 'bottom', labels: { color: '#888' } } 
+            }
+        }
+    });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
