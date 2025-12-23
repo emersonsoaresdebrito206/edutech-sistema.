@@ -1,345 +1,129 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduTech.AI - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- SISTEMA DE TEMAS (Cores Dinâmicas) --- */
-        :root {
-            /* TEMA DARK (Padrão) */
-            --bg-body: #121212;
-            --bg-card: #1e1e1e;
-            --text-main: #e0e0e0;
-            --text-muted: #a0a0a0;
-            --border-color: #333;
-            --input-bg: #2c2c2c;
-            --input-border: #444;
-            --table-hover: #2c2c2c;
-            --accent: #0d6efd;
-            --modal-bg: #2c2c2c;
-        }
-
-        /* TEMA LIGHT (Quando ativado) */
-        [data-theme="light"] {
-            --bg-body: #f4f6f8;
-            --bg-card: #ffffff;
-            --text-main: #212529;
-            --text-muted: #6c757d;
-            --border-color: #dee2e6;
-            --input-bg: #ffffff;
-            --input-border: #ced4da;
-            --table-hover: #f1f1f1;
-            --accent: #0d6efd;
-            --modal-bg: #ffffff;
-        }
-
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* Navbar */
-        .navbar {
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .navbar-brand {
-            font-weight: 800;
-            color: var(--accent) !important;
-            letter-spacing: 1px;
-        }
-
-        /* Cards */
-        .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            margin-bottom: 20px;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .card-header {
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            color: var(--text-main);
-            /* Ajuste para ficar visível nos dois temas */
-        }
-
-        /* Inputs */
-        .form-control {
-            background-color: var(--input-bg);
-            border: 1px solid var(--input-border);
-            color: var(--text-main);
-        }
-
-        .form-control:focus {
-            background-color: var(--input-bg);
-            color: var(--text-main);
-            border-color: var(--accent);
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        /* Tabelas */
-        .table {
-            color: var(--text-main);
-        }
-
-        .table-hover tbody tr:hover {
-            color: var(--text-main);
-            background-color: var(--table-hover);
-        }
-
-        .table-hover tbody tr td {
-            vertical-align: middle;
-        }
-
-        .table thead {
-            border-bottom: 2px solid var(--border-color);
-            color: var(--text-muted);
-        }
-
-        /* Modal */
-        .modal-content {
-            background-color: var(--modal-bg);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-        }
-
-        .modal-header {
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .modal-footer {
-            border-top: 1px solid var(--border-color);
-        }
-
-        /* Texto genérico para adaptação */
-        .text-theme {
-            color: var(--text-main) !important;
-        }
-
-        .text-muted-theme {
-            color: var(--text-muted) !important;
-        }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { background: linear-gradient(180deg, #6a11cb 0%, #2575fc 100%); min-height: 100vh; color: white; }
+        .card-stats { border: none; border-radius: 15px; transition: transform 0.3s; }
+        .card-stats:hover { transform: translateY(-5px); }
+        .table-container { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .badge-risco { font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; }
     </style>
 </head>
-
 <body>
 
-    <nav class="navbar navbar-expand-lg px-4 mb-4">
-        <div class="container-fluid">
-            <span class="navbar-brand">EduTech<span class="small text-muted-theme">.AI</span></span>
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block sidebar p-4">
+            <h4 class="text-center mb-5"><i class="fas fa-graduation-cap"></i> EDUTECH</h4>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-3"><a class="nav-link text-white" href="#"><i class="fas fa-home me-2"></i> Início</a></li>
+                <li class="nav-item mb-3"><a class="nav-link text-white" href="{{ url_for('exportar_dados') }}"><i class="fas fa-file-export me-2"></i> Relatórios</a></li>
+                <li class="nav-item mt-5"><a class="nav-link text-warning" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Sair</a></li>
+            </ul>
+        </nav>
 
-            <div class="d-flex gap-2 align-items-center">
-                <button id="theme-toggle" class="btn btn-outline-secondary btn-sm rounded-circle me-2"
-                    title="Mudar Tema">
-                    <i class="bi bi-sun-fill"></i>
+        <main class="col-md-10 ms-sm-auto p-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <h1 class="h2">Painel de Inteligência Preditiva</h1>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                    <i class="fas fa-plus me-2"></i>Novo Aluno
                 </button>
-
-                <a href="/exportar" class="btn btn-outline-primary btn-sm"><i
-                        class="bi bi-file-earmark-spreadsheet"></i> Relatório</a>
-                <a href="/logout" class="btn btn-sm btn-outline-danger">Sair</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container-fluid px-4">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-header text-primary"><i class="bi bi-cpu"></i> Inserir Dados</div>
-                    <div class="card-body">
-                        <form action="/add" method="POST">
-                            <div class="mb-2">
-                                <label class="small text-muted-theme">RA / Matrícula</label>
-                                <input type="text" name="matricula" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="mb-2">
-                                <label class="small text-muted-theme">Nome do Estudante</label>
-                                <input type="text" name="nome" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="small text-muted-theme">WhatsApp</label>
-                                <input type="text" name="telefone" class="form-control form-control-sm"
-                                    placeholder="Ex: 77999998888" required>
-                            </div>
-
-                            <label class="small text-muted-theme">Notas (U1 / U2 / U3)</label>
-                            <div class="row g-2 mb-3">
-                                <div class="col"><input type="number" step="0.1" name="nota1"
-                                        class="form-control form-control-sm text-center" placeholder="U1"></div>
-                                <div class="col"><input type="number" step="0.1" name="nota2"
-                                        class="form-control form-control-sm text-center" placeholder="U2"></div>
-                                <div class="col"><input type="number" step="0.1" name="nota3"
-                                        class="form-control form-control-sm text-center" placeholder="U3"></div>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 btn-sm fw-bold">Processar Aluno</button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header text-theme"><i class="bi bi-pie-chart"></i> Visão Geral</div>
-                    <div class="card-body">
-                        <canvas id="graficoNotas"></canvas>
-                    </div>
-                </div>
             </div>
 
-            <div class="col-md-9">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span class="text-theme"><i class="bi bi-database"></i> Base de Conhecimento</span>
-                        <span class="badge bg-primary rounded-pill">{{ alunos|length }} Alunos</span>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card card-stats bg-white p-3 mb-3 shadow-sm">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 bg-success text-white rounded-circle p-3 me-3"><i class="fas fa-user-check fa-2x"></i></div>
+                            <div><p class="text-muted mb-0">Aprovados</p><h3 class="mb-0">{{ apr }}</h3></div>
+                        </div>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="ps-4">Estudante</th>
-                                        <th class="text-center">Média</th>
-                                        <th class="text-center">Status</th>
-                                        <th class="text-end pe-4">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for aluno in alunos %}
-                                    <tr>
-                                        <td class="ps-4">
-                                            <div class="fw-bold text-theme">{{ aluno['nome'] }}</div>
-                                            <div class="small text-muted-theme">{{ aluno['matricula'] }}</div>
-                                        </td>
-                                        <td class="text-center fw-bold fs-5 text-theme">
-                                            {{ "%.1f"|format(aluno['media']) }}
-                                        </td>
-                                        <td class="text-center">
-                                            {% if aluno['situacao'] == 'Aprovado' %}
-                                            <span class="badge bg-success bg-opacity-75">Aprovado</span>
-                                            {% elif aluno['situacao'] == 'Reprovado' %}
-                                            <span class="badge bg-danger bg-opacity-75">Reprovado</span>
-                                            {% else %}
-                                            <span class="badge bg-info bg-opacity-50 text-dark">Cursando</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <button type="button" class="btn btn-sm btn-outline-warning me-1"
-                                                data-bs-toggle="modal" data-bs-target="#modalIA{{ aluno['id'] }}">
-                                                <i class="bi bi-robot"></i>
-                                            </button>
-                                            <a href="/whatsapp/{{ aluno['id'] }}" target="_blank"
-                                                class="btn btn-sm btn-success me-1"><i class="bi bi-whatsapp"></i></a>
-                                            <a href="/boletim/{{ aluno['id'] }}"
-                                                class="btn btn-sm btn-outline-primary me-1"><i
-                                                    class="bi bi-printer"></i></a>
-                                            <a href="/delete/{{ aluno['id'] }}" class="btn btn-sm btn-outline-danger"><i
-                                                    class="bi bi-trash"></i></a>
-                                        </td>
-                                    </tr>
-
-                                    <div class="modal fade" id="modalIA{{ aluno['id'] }}" tabindex="-1"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title"><i class="bi bi-cpu"></i> Análise EduTech.AI
-                                                    </h5>
-                                                    <button type="button" class="btn-close"
-                                                        data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body text-center">
-                                                    <h4 class="mb-3 text-theme">{{ aluno['nome'] }}</h4>
-                                                    <div class="p-3 mb-3 rounded border"
-                                                        style="background: rgba(128,128,128,0.1);">
-                                                        <div class="d-flex justify-content-around">
-                                                            <div><small class="text-muted-theme">U1</small><br><strong
-                                                                    class="text-theme">{{ aluno['nota1'] }}</strong>
-                                                            </div>
-                                                            <div><small class="text-muted-theme">U2</small><br><strong
-                                                                    class="text-theme">{{ aluno['nota2'] }}</strong>
-                                                            </div>
-                                                            <div><small class="text-muted-theme">U3</small><br><strong
-                                                                    class="text-theme">{{ aluno['nota3'] }}</strong>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <h5
-                                                        class="text-{{ aluno['predicao']['cor'] }} fw-bold text-uppercase">
-                                                        {{ aluno['predicao']['status'] }}
-                                                    </h5>
-                                                    <p class="lead fs-6 text-theme">{{ aluno['predicao']['msg'] }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-stats bg-white p-3 mb-3 shadow-sm">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 bg-danger text-white rounded-circle p-3 me-3"><i class="fas fa-user-times fa-2x"></i></div>
+                            <div><p class="text-muted mb-0">Reprovados</p><h3 class="mb-0">{{ rep }}</h3></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-stats bg-white p-3 mb-3 shadow-sm">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 bg-warning text-white rounded-circle p-3 me-3"><i class="fas fa-brain fa-2x"></i></div>
+                            <div><p class="text-muted mb-0">Total Alunos</p><h3 class="mb-0">{{ alunos|length }}</h3></div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="table-container">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Aluno</th>
+                            <th>Média</th>
+                            <th>Análise IA</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for aluno in alunos %}
+                        <tr>
+                            <td>
+                                <strong>{{ aluno.nome }}</strong><br>
+                                <small class="text-muted">{{ aluno.matricula }}</small>
+                            </td>
+                            <td><span class="badge bg-light text-dark">{{ "%.1f"|format(aluno.media) }}</span></td>
+                            <td>
+                                <span class="badge bg-{{ aluno.predicao.cor }} badge-risco">
+                                    {{ aluno.predicao.status }}
+                                </span>
+                                <br><small class="text-muted">{{ aluno.predicao.msg }}</small>
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ url_for('enviar_whatsapp', id=aluno.id) }}" class="btn btn-sm btn-outline-success me-1"><i class="fab fa-whatsapp"></i></a>
+                                <a href="{{ url_for('gerar_boletim', id=aluno.id) }}" class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-file-pdf"></i></a>
+                                <a href="{{ url_for('delete_student', id=aluno.id) }}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('add_student') }}" method="POST">
+                <div class="modal-header"><h5>Cadastrar Aluno</h5></div>
+                <div class="modal-body">
+                    <input type="text" name="nome" placeholder="Nome Completo" class="form-control mb-2" required>
+                    <input type="text" name="matricula" placeholder="Matrícula" class="form-control mb-2" required>
+                    <input type="text" name="telefone" placeholder="Telefone (DDD)" class="form-control mb-2" required>
+                    <div class="row">
+                        <div class="col"><input type="number" step="0.1" name="nota1" placeholder="Nota 1" class="form-control mb-2"></div>
+                        <div class="col"><input type="number" step="0.1" name="nota2" placeholder="Nota 2" class="form-control mb-2"></div>
+                        <div class="col"><input type="number" step="0.1" name="nota3" placeholder="Nota 3" class="form-control mb-2"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary w-100">Salvar Dados</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // --- LÓGICA DO TEMA (DARK / LIGHT) ---
-        const btnTheme = document.getElementById('theme-toggle');
-        const iconTheme = btnTheme.querySelector('i');
-        const body = document.body;
-
-        // Verifica se o usuário já escolheu um tema antes
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') {
-            body.setAttribute('data-theme', 'light');
-            iconTheme.classList.replace('bi-sun-fill', 'bi-moon-fill');
-        }
-
-        btnTheme.addEventListener('click', () => {
-            if (body.hasAttribute('data-theme')) {
-                // Mudar para Dark
-                body.removeAttribute('data-theme');
-                iconTheme.classList.replace('bi-moon-fill', 'bi-sun-fill');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                // Mudar para Light
-                body.setAttribute('data-theme', 'light');
-                iconTheme.classList.replace('bi-sun-fill', 'bi-moon-fill');
-                localStorage.setItem('theme', 'light');
-            }
-        });
-
-        // --- GRÁFICO ---
-        const ctx = document.getElementById('graficoNotas');
-        const apr = {{ apr }};
-        const rep = {{ rep }};
-        if (apr + rep > 0) {
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Aprovados', 'Reprovados'],
-                    datasets: [{
-                        data: [apr, rep],
-                        backgroundColor: ['#198754', '#dc3545'],
-                        borderWidth: 0
-                    }]
-                },
-                options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
-            });
-        }
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
